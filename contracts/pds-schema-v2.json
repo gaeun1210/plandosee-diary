@@ -1,0 +1,166 @@
+{
+  "name": "pds-diary",
+  "schema_version": 2,
+  "database": "PostgreSQL 14+",
+  "source_of_truth": "db/schema.sql",
+  "rules": {
+    "date_only": "DATE 칸은 서울(Asia/Seoul) 달력 날짜. 주고받을 때 'YYYY-MM-DD' 문자열 그대로, 시간대 변환 없음.",
+    "timestamps": "TIMESTAMPTZ 칸은 UTC로 저장. API는 ISO 8601(UTC)로 돌려주고, 화면은 Asia/Seoul로 보여 준다. 입력은 서울 시각에 +09:00을 붙여 보낸다.",
+    "today": "'오늘'은 서버에서 (now() AT TIME ZONE 'Asia/Seoul')::date 로 계산한다.",
+    "duration_unit": "모든 *_minutes 칸은 분 단위 정수. 저장·집계·화면 모두 분.",
+    "priority": "1=높음, 2=보통, 3=낮음 (숫자가 작을수록 높음)",
+    "ids": "BIGSERIAL. 한 번 매긴 ID는 바뀌지 않는다. 계획을 고쳐도 plans.id는 그대로다."
+  },
+  "tables": {
+    "plans": {
+      "purpose": "계획의 현재 값",
+      "columns": {
+        "id": "bigint PK",
+        "current_revision": "int, plan_revisions의 최신 revision_no",
+        "title": "text 1~120자",
+        "start_date": "date",
+        "end_date": "date, >= start_date",
+        "priority": "smallint 1~3",
+        "success_criteria": "text 1~1000자",
+        "estimated_minutes": "int 0~100000, 분",
+        "carried_lesson": "text <=300자, 지난 돌아보기에서 넘어온 고칠 점 (없으면 null)",
+        "carried_from_review_id": "bigint, 넘어온 돌아보기 ID (없으면 null)",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "plan_revisions": {
+      "purpose": "계획의 모든 판. revision_no=1이 처음 세운 계획. 추가만 되고 트리거로 UPDATE/DELETE 금지.",
+      "columns": {
+        "id": "bigint PK",
+        "plan_id": "bigint FK -> plans.id",
+        "revision_no": "int, (plan_id, revision_no) UNIQUE",
+        "title": "text",
+        "start_date": "date",
+        "end_date": "date",
+        "priority": "smallint",
+        "success_criteria": "text",
+        "estimated_minutes": "int, 분",
+        "carried_lesson": "text | null",
+        "change_note": "text <=300자 | null, 고친 이유",
+        "created_at": "timestamptz"
+      }
+    },
+    "tasks": {
+      "purpose": "계획에 딸린 할 일. 지우면 deleted_at만 채운다(소프트 삭제).",
+      "columns": {
+        "id": "bigint PK",
+        "plan_id": "bigint FK -> plans.id",
+        "title": "text 1~200자",
+        "due_date": "date, 서울 달력 날짜",
+        "priority": "smallint 1~3",
+        "tags": "text[] 최대 10개, 각 30자 이하",
+        "estimated_minutes": "int 0~100000, 분",
+        "deleted_at": "timestamptz | null",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      },
+      "derived": {
+        "done": "reopened_at이 null인 task_completions 행이 있으면 true",
+        "delayed": "done=false 이고 due_date < 서울 기준 오늘",
+        "blocked": "btrim(blocker) <> '' 인 work_logs가 하나라도 있으면 true",
+        "actual_minutes": "그 할 일의 work_logs.actual_minutes 합계, 없으면 0"
+      }
+    },
+    "task_completions": {
+      "purpose": "완료 기록. 되돌리면 reopened_at을 채우고, 다시 완료하면 새 행이 생긴다.",
+      "columns": {
+        "id": "bigint PK",
+        "task_id": "bigint FK -> tasks.id",
+        "idempotency_key": "uuid UNIQUE, 요청마다 화면이 만들어 Idempotency-Key 헤더로 보냄",
+        "completed_at": "timestamptz",
+        "reopened_at": "timestamptz | null"
+      },
+      "constraints": [
+        "UNIQUE(idempotency_key): 같은 요청 재전송을 막음",
+        "UNIQUE INDEX one_open_completion_per_task ON (task_id) WHERE reopened_at IS NULL: 연속 클릭·동시 요청이어도 열린 완료 기록은 한 건"
+      ]
+    },
+    "work_logs": {
+      "purpose": "실제로 한 일(실행 기록). 계획·할 일과 다른 표라 저장해도 예상 값을 덮어쓰지 않는다.",
+      "columns": {
+        "id": "bigint PK",
+        "task_id": "bigint FK -> tasks.id",
+        "started_at": "timestamptz",
+        "ended_at": "timestamptz, >= started_at",
+        "actual_minutes": "int 0~100000, 분 (쉰 시간을 빼고 고쳐 적을 수 있음)",
+        "blocker": "text <=1000자, 막혔던 이유 (없으면 빈 문자열)",
+        "created_at": "timestamptz"
+      }
+    },
+    "reviews": {
+      "purpose": "돌아보기. 저장 시점의 집계와 고칠 점 한 줄, 그리고 넘겨 만든 다음 계획.",
+      "columns": {
+        "id": "bigint PK",
+        "plan_id": "bigint FK -> plans.id",
+        "snapshot": "jsonb {planned, done, delayed, blocked, estimated_minutes, actual_minutes, diff_minutes, today_seoul, from, to}",
+        "lesson": "text 1~300자",
+        "carried_to_plan_id": "bigint UNIQUE FK -> plans.id | null, 한 돌아보기는 한 번만 넘긴다",
+        "created_at": "timestamptz"
+      }
+    },
+    "running_timer": {
+      "purpose": "돌고 있는 타이머. 한 번에 하나만(id=1 고정). 정지하면 이 줄을 지우고 같은 트랜잭션에서 work_logs 한 건을 만든다.",
+      "columns": {
+        "id": "smallint PK, 항상 1",
+        "task_id": "bigint FK -> tasks.id",
+        "started_at": "timestamptz"
+      },
+      "constraints": [
+        "PRIMARY KEY(id) + CHECK(id=1): 동시에 두 타이머 불가",
+        "정지를 두 번 보내도 DELETE ... RETURNING이 한 번만 성공해 기록이 겹치지 않음"
+      ]
+    }
+  },
+  "relations": [
+    "plans 1 ─ N plan_revisions",
+    "plans 1 ─ N tasks",
+    "tasks 1 ─ N task_completions (열린 것은 최대 1)",
+    "tasks 1 ─ N work_logs",
+    "plans 1 ─ N reviews",
+    "reviews 1 ─ 0..1 plans (carried_to_plan_id ↔ plans.carried_from_review_id)",
+    "tasks 1 ─ 0..1 running_timer"
+  ],
+  "review_metrics": {
+    "scope": "그 계획의 deleted_at IS NULL 할 일 (기간을 주면 due_date가 기간 안인 것만)",
+    "planned": "scope 수",
+    "done": "scope 중 done",
+    "delayed": "scope 중 delayed (done이면 세지 않음)",
+    "blocked": "scope 중 blocked",
+    "estimated_minutes": "scope의 estimated_minutes 합, 없으면 0",
+    "actual_minutes": "scope의 work_logs.actual_minutes 합, 없으면 0",
+    "diff_minutes": "actual_minutes - estimated_minutes"
+  },
+  "api": {
+    "GET /api/plans": "계획 목록",
+    "POST /api/plans": "계획 만들기 (1판 함께 저장)",
+    "PUT /api/plans/:id": "계획 고치기 (새 판 추가)",
+    "GET /api/plans/:id/revisions": "고친 이력",
+    "GET /api/tasks?plan_id&q&status&priority&tag&sort": "할 일 찾기·거르기·정렬 (서버)",
+    "POST /api/tasks": "할 일 만들기",
+    "PUT /api/tasks/:id": "할 일 고치기",
+    "DELETE /api/tasks/:id": "할 일 지우기 (소프트)",
+    "POST /api/tasks/:id/complete": "완료 (Idempotency-Key 필수)",
+    "POST /api/tasks/:id/reopen": "진행 중으로 되돌리기",
+    "GET|POST /api/tasks/:id/logs": "실행 기록",
+    "GET /api/plans/:id/logs": "한 계획의 실행 기록 전체 (할 일 이름·태그 포함)",
+    "DELETE /api/logs/:id": "실행 기록 지우기",
+    "GET /api/plans/:id/review?from&to": "돌아보기 집계",
+    "GET /api/plans/:id/review/evidence?metric&from&to": "집계 숫자의 근거 할 일·기록",
+    "GET|POST /api/plans/:id/reviews": "돌아보기 저장·목록",
+    "POST /api/reviews/:id/carry": "고칠 점을 다음 계획으로 넘기기",
+    "GET /api/export": "내 자료 전체를 JSON 파일 하나로",
+    "GET /api/timer": "돌고 있는 타이머 (없으면 null)",
+    "POST /api/tasks/:id/timer": "타이머 시작 (이미 돌고 있으면 409)",
+    "POST /api/timer/stop": "타이머 정지 → 실행 기록 한 건 생성 (actual_minutes = 경과 분 반올림)",
+    "DELETE /api/timer": "타이머를 기록 없이 버리기"
+  },
+  "views": {
+    "tasks": "목록 / 칸반 보드(진행 중·지연·완료, 끌어서 완료·되돌리기) / 캘린더(마감일 칸, 날짜별 실행 기록 분)는 같은 거르기·정렬 결과를 다르게 보여 줄 뿐 저장 방식은 같다."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "pds-diary",
+  "version": "2.0.0",
+  "private": true,
+  "description": "플랜두씨 다이어리 — 계획(Plan) → 실제로 한 일(Do) → 돌아보기(See)",
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file=.env server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

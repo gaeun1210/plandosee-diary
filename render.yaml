@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pds-diary
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: PGSSL
+        sync: false

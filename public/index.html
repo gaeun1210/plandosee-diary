@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e6f2d6">
+  <title>플랜두씨 다이어리</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%80%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body class="theme-a">
+  <svg class="art-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+  <radialGradient id="g-shell" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#f3fae6"/><stop offset=".45" stop-color="#cfe7aa"/><stop offset="1" stop-color="#9fc979"/></radialGradient>
+  <radialGradient id="g-body" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#fbfdf3"/><stop offset=".55" stop-color="#e0efc6"/><stop offset="1" stop-color="#bcd99a"/></radialGradient>
+  <radialGradient id="g-leaf" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#eef8de"/><stop offset=".5" stop-color="#bfe09a"/><stop offset="1" stop-color="#8fbf68"/></radialGradient>
+  <radialGradient id="g-emboss" cx="45%" cy="40%" r="70%"><stop offset="0" stop-color="#fbfef4"/><stop offset="1" stop-color="#d6ebb8"/></radialGradient>
+  <radialGradient id="g-gold" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fffbea"/><stop offset=".5" stop-color="#f8e6a6"/><stop offset="1" stop-color="#e7c86e"/></radialGradient>
+  <radialGradient id="g-star" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#f1f9e4"/><stop offset=".5" stop-color="#c8e3a6"/><stop offset="1" stop-color="#9cc777"/></radialGradient>
+  <radialGradient id="g-pink" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#fff6f5"/><stop offset=".55" stop-color="#fbd9d6"/><stop offset="1" stop-color="#eeb4b0"/></radialGradient>
+  <linearGradient id="g-chain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfbfb"/><stop offset="1" stop-color="#aeb6b2"/></linearGradient>
+  <filter id="f-soft" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.4" flood-color="#5f7f45" flood-opacity=".28"/></filter>
+</defs></svg>
+  <div class="desk">
+  <div class="book">
+    <!-- 노트 책등: 내 계획 -->
+    <aside class="side" aria-label="내 계획">
+      <div class="brand"><img class="brand-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"><div class="brand-txt"><b>플랜두씨</b><small>행운 다이어리</small></div></div>
+      <nav class="snav tabs" aria-label="화면 바꾸기"><div class="tabs-in"><button type="button" class="nav-btn tab" data-go="home"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">홈</span></button><button type="button" class="nav-btn tab" data-go="plan"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">계획</span></button><button type="button" class="nav-btn tab" data-go="tasks"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">할 일</span></button><button type="button" class="nav-btn tab" data-go="logs"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">기록</span></button><button type="button" class="nav-btn tab" data-go="review"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">돌아보기</span></button></div></nav>
+      <p class="slabel">내 계획</p>
+      <ul id="plan-nav" class="plans"></ul>
+      <button type="button" class="add-plan" id="btn-new-plan">＋ 새 계획</button>
+      <section class="music" id="music" aria-label="배경 음악">
+        <button type="button" class="mbtn main" id="music-play" aria-label="음악 재생" aria-pressed="false"><span class="i-play" aria-hidden="true">▶</span><span class="i-pause" aria-hidden="true">❚❚</span></button>
+        <span class="music-state" id="music-state" aria-live="polite">음악 정지 중</span>
+        <span class="music-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <label class="mvol"><span class="sr-only">음량</span><input type="range" id="music-vol" min="0" max="100" value="55"></label>
+      </section>
+      <div class="sfoot">
+        <a id="btn-export" class="exp-link" href="/api/export" download><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19"/></svg> 내 자료 내보내기 (JSON)</a>
+        <small>서울 시간 · 분 단위로 저장</small>
+      </div>
+    </aside>
+
+
+    <div class="content">
+      <header class="topline">
+        <p class="notice"><span class="nh" aria-hidden="true">★</span><span id="public-notice">지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요</span></p>
+        <p class="date"><span aria-hidden="true">◎ </span><span id="today-label"></span></p>
+      </header>
+
+      <main class="screens">
+        <!-- 홈 -->
+        <section class="screen" id="screen-home" aria-label="홈">
+          <div class="needs-plan">
+            <section class="hero" aria-labelledby="hero-title">
+              <div class="name-label">
+                <img class="nl-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false">
+                <div class="stars" aria-hidden="true"><span class="star-badge s1"><img class="" src="/img/star-yellow.svg" alt="" aria-hidden="true" draggable="false"><b>아</b></span><span class="star-badge s2"><img class="" src="/img/star-green.svg" alt="" aria-hidden="true" draggable="false"><b>자</b></span></div>
+                <div class="nl-in">
+                  <div class="hero-txt">
+                    <span class="pill">지금 계획 <em id="hero-dday"></em></span>
+                    <h1 id="hero-title"></h1>
+                  </div>
+                </div>
+              </div>
+              <ul class="lines">
+                <li><span class="lk">◎ 기간 · 기준</span><span class="lv" id="hero-meta"></span></li>
+                <li class="li-prog"><span class="lk">◎ 진행</span><span class="lv" id="hero-progress"></span></li>
+                <li class="li-lesson"><span class="lk">◎ 고칠 점</span><span class="lv"><span class="hero-lesson" id="hero-lesson" hidden></span></span></li>
+              </ul>
+              <div class="hrow">
+                <div class="hbar" role="progressbar" aria-label="할 일 진행률" aria-valuemin="0" aria-valuemax="100" id="hero-bar-wrap"><i id="hero-bar"><span class="knob"><img class="knob-face" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"></span></i></div>
+              </div>
+              <div class="trail" id="trail" aria-labelledby="trail-title">
+                <div class="trail-head"><h2 id="trail-title">오늘의 산책길</h2><span class="muted" id="trail-count"></span><span class="trail-tag" aria-hidden="true">오늘도 한 걸음</span></div>
+                <div class="track" id="track">
+                  <span class="path" aria-hidden="true"></span>
+                  <ol class="stops" id="trail-stops" aria-label="오늘 할 일 발자국"></ol>
+                  <div class="walker" id="walker"><div class="walk-turtle" role="img" aria-label="오늘 할 일을 끝낸 만큼 걸어가는 거북이"><img class="flip" src="/img/turtle-sleep.png" alt="" aria-hidden="true" draggable="false"></div></div>
+                  <div class="goal-wrap" id="goal"><svg class="goal" viewBox="-4 -10 70 86" aria-hidden="true"><g transform="translate(30 26) scale(1.15)"><path d="M0 2 C0 14 3 22 9 31" fill="none" stroke="#6e675b" stroke-width="1.57" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.57" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.13" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.57" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.13" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.57" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.13" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.57" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.13" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg></div>
+                </div>
+                <p class="trail-msg" id="trail-msg" aria-live="polite"></p>
+              </div>
+            </section>
+
+            <div class="dgrid">
+              <section class="card c-today memo" aria-labelledby="t-today">
+                <div class="memo-top" aria-hidden="true"><img class="memo-band" src="/img/clover-band.svg" alt="" aria-hidden="true" draggable="false"></div>
+                <div class="ch"><h2 id="t-today">오늘 할 일</h2><span class="muted" id="today-count"></span><button type="button" class="mini add-mini" id="btn-add-task-home">＋ 붙이기</button></div>
+                <ul id="today-list" class="tl"></ul>
+                
+              </section>
+              <section class="card c-fortune" aria-labelledby="t-fortune">
+                <div class="ch"><h2 id="t-fortune">오늘의 행운 쪽지</h2><span class="muted">쿠키를 눌러 보세요</span></div>
+                <button type="button" class="cookie-btn" id="cookie-hit" aria-label="포춘쿠키 열어서 행운 쪽지 새로 뽑기"><img class="ck-closed" src="/img/cookie-closed.png" alt="" aria-hidden="true" draggable="false"><img class="ck-open" src="/img/cookie-open.png" alt="" aria-hidden="true" draggable="false"></button>
+                <div class="f-main"><p class="fq" id="fortune" aria-live="polite"></p>
+                  <button type="button" class="more" id="fortune-again">한 장 더 뽑기</button>
+                </div>
+              </section>
+              <section class="card c-week" aria-labelledby="t-week">
+                                <div class="ch"><h2 id="t-week">이번 주 실제로 한 시간</h2><span class="muted" id="week-total"></span></div>
+                <div id="week-bars" class="wbars"></div>
+              </section>
+              <section class="card c-glance" aria-labelledby="t-glance">
+                <div class="ch"><h2 id="t-glance">돌아보기 요약</h2><button type="button" class="more" data-go="review">자세히 ›</button></div>
+                <div class="rv glance" id="glance"></div>
+              </section>
+            </div>
+          </div>
+          <div class="empty-hero" id="empty-hero">
+            <img class="sleepy" src="/img/turtle-sleep.png" alt="" aria-hidden="true" draggable="false">
+            <h1>아직 계획이 없어요</h1>
+            <p>운동·공부·업무처럼 지금 실제로 하고 있는 일 하나를 계획으로 옮겨 보세요.</p>
+            <button type="button" class="btn-primary" id="btn-new-plan-3">＋ 새 계획 세우기</button>
+          </div>
+        </section>
+
+        <!-- 계획 -->
+        <section class="screen" id="screen-plan" aria-labelledby="t-plan" hidden>
+          <div class="ph"><div><h1 id="t-plan">계획</h1></div>
+            <div class="ph-btns"><button type="button" class="btn-primary" id="btn-edit-plan"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 L5.5 15.5 L15.5 5.5 L18.5 8.5 L8.5 18.5Z M13.5 7.5 L16.5 10.5"/></svg> 이 계획 고치기</button></div></div>
+          <div class="needs-plan">
+            <div class="pgrid">
+              <article class="card plan-card">
+                <div class="plan-card-head"><svg class="cl" viewBox="-23 -23 46 46" width="40" height="40" aria-hidden="true"><g transform="translate(0 0) scale(1)"><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="2.20" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="2.20" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="2.20" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="2.20" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg><div><h2 id="plan-heading" tabindex="-1"></h2><p class="muted" id="plan-sub"></p></div></div>
+                <dl class="props" id="plan-facts"></dl>
+                <div id="carried-note" class="lucky-note" hidden><svg class="cl" viewBox="-23 -23 46 46" width="22" height="22" aria-hidden="true"><g transform="translate(0 0) scale(1)"><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg><div><b>지난 돌아보기에서 넘어온 고칠 점</b><p id="carried-text"></p></div></div>
+              </article>
+              <section class="card history-sec" aria-labelledby="t-history">
+                <div class="ch"><h2 id="t-history">수정 이력 <em class="cnt" id="count-history"></em></h2></div>
+                <p class="hint">1판이 처음 세운 계획입니다. 고칠 때마다 새 판이 위에 쌓이고, 예전 판은 지워지지 않습니다.</p>
+                <ol id="history-list" class="history-list"></ol>
+              </section>
+            </div>
+          </div>
+          <p class="no-plan-msg">먼저 왼쪽의 <b>＋ 새 계획</b>으로 계획을 하나 세워 주세요.</p>
+        </section>
+
+        <!-- 할 일 -->
+        <section class="screen" id="screen-tasks" aria-labelledby="t-tasks" hidden>
+          <div class="ph"><div><h1 id="t-tasks">할 일 <em class="cnt" id="count-tasks"></em></h1></div>
+            <button type="button" class="btn-primary" id="btn-add-task">＋ 할 일 붙이기</button></div>
+          <div class="needs-plan">
+            <div class="toolbar">
+              <label class="search"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 L20 20"/></svg><span class="sr-only">할 일 검색</span><input id="f-q" type="search" placeholder="할 일 검색 (이름·태그)" maxlength="100"></label>
+              <div class="chips" role="group" aria-label="상태로 거르기">
+                <button type="button" class="chip" data-status="all" aria-pressed="true">전체</button>
+                <button type="button" class="chip" data-status="todo" aria-pressed="false">진행 중</button>
+                <button type="button" class="chip" data-status="done" aria-pressed="false">완료</button>
+                <button type="button" class="chip" data-status="delayed" aria-pressed="false">지연</button>
+                <button type="button" class="chip" data-status="blocked" aria-pressed="false">막힘</button>
+                <button type="button" class="chip" id="chip-important" aria-pressed="false">중요</button>
+              </div>
+              <button type="button" class="chip icon-chip" id="btn-filter" aria-expanded="false" aria-controls="filter-panel"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 H20 M7 12 H17 M10 18 H14"/></svg> 거르기·정렬</button>
+              <div class="seg" role="group" aria-label="보기 방식">
+                <button type="button" class="view-btn" data-view="list" aria-pressed="true">목록</button>
+                <button type="button" class="view-btn" data-view="board" aria-pressed="false">보드</button>
+                <button type="button" class="view-btn" data-view="calendar" aria-pressed="false">캘린더</button>
+              </div>
+            </div>
+            <input type="hidden" id="f-status" value="all">
+            <div id="filter-panel" class="filter-panel" hidden>
+              <label>우선순위<select id="f-priority"><option value="">전부</option><option value="1">높음</option><option value="2">보통</option><option value="3">낮음</option></select></label>
+              <label>태그<select id="f-tag"><option value="">전부</option></select></label>
+              <label>정렬<select id="f-sort"><option value="due">마감일 빠른 순</option><option value="priority">우선순위 높은 순</option><option value="estimate">예상 시간 긴 순</option><option value="created">최근에 만든 순</option></select></label>
+            </div>
+            <p class="sort-rule" id="sort-rule" aria-live="polite"></p>
+            <section class="card tbl" id="task-table">
+              <div class="thead" aria-hidden="true"><span></span><span>할 일</span><span>마감</span><span>태그</span><span>예상</span><span>실제</span><span>상태</span><span></span></div>
+              <ul id="task-list" class="task-list"></ul>
+              <p id="task-empty" class="empty" hidden></p>
+            </section>
+            <div id="board" class="board" hidden></div>
+            <div id="calendar" class="calendar card" hidden></div>
+            <div class="tip"><svg class="tip-star" viewBox="0 0 20 20" aria-hidden="true"><path d="M10.0 1.6 L12.8 6.8 L18.6 7.8 L14.5 12.0 L15.3 17.9 L10.0 15.3 L4.7 17.9 L5.5 12.0 L1.4 7.8 L7.2 6.8Z" fill="url(#g-gold)" stroke="#d2b45e" stroke-width="1.1" stroke-linejoin="round"/></svg><p><b>거북이의 한마디</b> <span id="tip-text"></span></p></div>
+          </div>
+          <p class="no-plan-msg">먼저 왼쪽의 <b>＋ 새 계획</b>으로 계획을 하나 세워 주세요.</p>
+        </section>
+
+        <!-- 실행 기록 -->
+        <section class="screen" id="screen-logs" aria-labelledby="t-logs" hidden>
+          <div class="ph"><div><h1 id="t-logs">실행 기록 <em class="cnt" id="count-logs"></em></h1></div>
+            <button type="button" class="btn-primary" id="btn-add-log">＋ 실제로 한 일 적기</button></div>
+          <div class="needs-plan">
+            <p class="log-summary" id="log-summary"></p>
+            <div id="log-feed" class="log-feed"></div>
+          </div>
+          <p class="no-plan-msg">먼저 왼쪽의 <b>＋ 새 계획</b>으로 계획을 하나 세워 주세요.</p>
+        </section>
+
+        <!-- 돌아보기 -->
+        <section class="screen" id="screen-review" aria-labelledby="t-review" hidden>
+          <div class="ph"><div><p class="crumb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10 H20 M9 3 V7 M15 3 V7"/></svg> <span id="review-range"></span></p><h1 id="t-review">돌아보기</h1></div>
+            <button type="button" class="btn-line" id="btn-period" aria-expanded="false" aria-controls="period-form">기간 바꾸기</button></div>
+          <div class="needs-plan">
+            <form id="period-form" class="period card" hidden>
+              <label>마감일 기준 시작<input type="date" name="from"></label>
+              <label>끝<input type="date" name="to"></label>
+              <button class="btn-primary small" type="submit">이 기간으로 모으기</button>
+              <button class="btn-line small" type="button" id="btn-period-all">전체 기간</button>
+            </form>
+            <p class="hint" id="review-basis"></p>
+            <div class="statrow" id="stats"></div>
+            <p class="hint">숫자를 누르면 그 숫자가 나온 할 일과 실행 기록이 오른쪽 "근거"에 나옵니다.</p>
+            <div class="rgrid">
+              <section class="card" aria-labelledby="t-tags">
+                <div class="ch"><h2 id="t-tags">완료율과 태그별 빗나감</h2><span class="muted">예상 vs 실제</span></div>
+                <div class="rate-row">
+                  <button type="button" class="donut" id="donut" data-metric="done" aria-pressed="false">
+                    <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="rb" cx="60" cy="60" r="48"/><circle class="rg" id="ring" cx="60" cy="60" r="48" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 60 60)"/></svg>
+                    <span class="dn-t"><b id="rate">0%</b><span>완료율</span></span>
+                  </button>
+                  <p class="rate-note" id="rate-note"></p>
+                </div>
+                <div id="tag-rows"></div>
+                <div class="insight" id="insight"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 H15 M10 20.5 H14 M12 3.5 A6 6 0 0 0 8.5 14.3 V17 H15.5 V14.3 A6 6 0 0 0 12 3.5Z"/></svg><p id="insight-text"></p></div>
+              </section>
+              <section class="card evidence" id="evidence" tabindex="-1" aria-labelledby="evidence-title">
+                <div class="ch"><h2 id="evidence-title">근거</h2></div>
+                <p class="hint" id="evidence-rule">위의 숫자나 완료율을 누르면, 그 숫자를 만든 할 일과 실행 기록이 여기에 나옵니다.</p>
+                <ul id="evidence-list" class="evidence-list"></ul>
+              </section>
+            </div>
+            <section class="card next-card" aria-labelledby="t-next">
+              <span class="luck-corner" aria-hidden="true"><img class="luck-tag" src="/img/luck-tag.svg" alt="" aria-hidden="true" draggable="false"></span>
+              <div class="nb-art"><img class="nb-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"></div>
+              <div class="nb-main">
+                <h2 id="t-next">다음 계획으로 넘길 고칠 점 한 가지</h2>
+                <form id="lesson-form" class="lesson">
+                  <label class="grow"><span class="sr-only">고칠 점 한 가지</span><input name="lesson" required maxlength="300" placeholder="예: 예상 시간을 1.5배로 잡기"></label>
+                  <button class="btn-primary" type="submit">돌아보기 저장</button>
+                </form>
+                <ul id="review-list" class="review-list"></ul>
+              </div>
+            </section>
+          </div>
+          <p class="no-plan-msg">먼저 왼쪽의 <b>＋ 새 계획</b>으로 계획을 하나 세워 주세요.</p>
+        </section>
+      </main>
+      <p class="page-no" aria-hidden="true">plan · do · see</p>
+    </div>
+  </div>
+  </div>
+
+  <!-- 계획 입력 -->
+  <dialog id="plan-dialog" class="sheet">
+    <form id="plan-form" method="dialog" novalidate>
+      <h2 id="plan-dialog-title">새 계획</h2>
+      <p class="hint" id="plan-dialog-hint"></p>
+      <label>계획 이름<input name="title" required maxlength="120"></label>
+      <div class="two"><label>시작일<input name="start_date" type="date" required></label><label>종료일<input name="end_date" type="date" required></label></div>
+      <div class="two"><label>우선순위<select name="priority"><option value="1">높음</option><option value="2" selected>보통</option><option value="3">낮음</option></select></label><label>예상 시간(분)<input name="estimated_minutes" type="number" min="0" max="100000" required></label></div>
+      <label>성공 기준 (무엇이 되면 성공인가요)<textarea name="success_criteria" rows="3" required maxlength="1000"></textarea></label>
+      <label id="change-note-wrap">고친 이유 (이력에 함께 남아요)<input name="change_note" maxlength="300"></label>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line" type="button" data-close>닫기</button><button class="btn-primary" type="submit">저장하기</button></div>
+    </form>
+  </dialog>
+
+  <!-- 할 일 붙이기 -->
+  <dialog id="task-add-dialog" class="sheet">
+    <form id="task-form" method="dialog" novalidate>
+      <h2>할 일 붙이기</h2>
+      <p class="hint add-for"></p>
+      <label>할 일<input name="title" required maxlength="200" placeholder="예: 3단원 문제 20개 풀기"></label>
+      <div class="two"><label>마감일<input name="due_date" type="date" required></label><label>우선순위<select name="priority"><option value="1">높음</option><option value="2" selected>보통</option><option value="3">낮음</option></select></label></div>
+      <div class="two"><label>예상 시간(분)<input name="estimated_minutes" type="number" min="0" max="100000" step="1" required value="30"></label><label>태그 (쉼표로 나누기)<input name="tags" maxlength="200" placeholder="예: 공부, 복습"></label></div>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line" type="button" data-close>닫기</button><button class="btn-primary" type="submit">할 일 붙이기</button></div>
+    </form>
+  </dialog>
+
+  <!-- 할 일 고치기 -->
+  <dialog id="task-dialog" class="sheet">
+    <form id="task-edit-form" method="dialog" novalidate>
+      <h2>할 일 고치기</h2>
+      <label>할 일<input name="title" required maxlength="200"></label>
+      <div class="two"><label>마감일<input name="due_date" type="date" required></label><label>우선순위<select name="priority"><option value="1">높음</option><option value="2">보통</option><option value="3">낮음</option></select></label></div>
+      <div class="two"><label>예상 시간(분)<input name="estimated_minutes" type="number" min="0" max="100000" required></label><label>태그 (쉼표로 나누기)<input name="tags" maxlength="200"></label></div>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line" type="button" data-close>닫기</button><button class="btn-primary" type="submit">고친 내용 저장</button></div>
+    </form>
+  </dialog>
+
+  <!-- 실행 기록 -->
+  <dialog id="log-dialog" class="sheet">
+    <form id="log-form" method="dialog" novalidate>
+      <h2>실제로 한 일 적기</h2>
+      <label>어느 할 일에 붙일까요<select name="task_id" required></select></label>
+      <p class="hint">계획과 할 일의 예상 값은 바뀌지 않습니다.</p>
+      <div class="two"><label>시작 시각 (서울)<input name="started_at" type="datetime-local" required></label><label>끝난 시각 (서울)<input name="ended_at" type="datetime-local" required></label></div>
+      <label>실제로 걸린 시간(분) <small>쉰 시간을 뺐다면 고쳐 적으세요</small><input name="actual_minutes" type="number" min="0" max="100000" required></label>
+      <label>막혔던 이유 (없으면 비워 두기)<textarea name="blocker" rows="2" maxlength="1000"></textarea></label>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line" type="button" data-close>닫기</button><button class="btn-primary" type="submit">기록 저장</button></div>
+    </form>
+  </dialog>
+
+  <!-- 다음 계획으로 넘기기 -->
+  <dialog id="carry-dialog" class="sheet">
+    <form id="carry-form" method="dialog" novalidate>
+      <h2>다음 계획으로 넘기기</h2>
+      <div class="lucky-note"><svg class="cl" viewBox="-23 -23 46 46" width="22" height="22" aria-hidden="true"><g transform="translate(0 0) scale(1)"><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg><div><b>넘길 고칠 점</b><p id="carry-lesson"></p></div></div>
+      <label>다음 계획 이름<input name="title" required maxlength="120"></label>
+      <div class="two"><label>시작일<input name="start_date" type="date" required></label><label>종료일<input name="end_date" type="date" required></label></div>
+      <div class="two"><label>우선순위<select name="priority"><option value="1">높음</option><option value="2">보통</option><option value="3">낮음</option></select></label><label>예상 시간(분)<input name="estimated_minutes" type="number" min="0" max="100000" required></label></div>
+      <label>성공 기준<textarea name="success_criteria" rows="3" required maxlength="1000"></textarea></label>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line" type="button" data-close>닫기</button><button class="btn-primary" type="submit">다음 계획 만들기</button></div>
+    </form>
+  </dialog>
+
+  <!-- 타이머 정지 -->
+  <dialog id="timer-dialog" class="sheet">
+    <form id="timer-form" method="dialog" novalidate>
+      <h2>타이머 정지</h2>
+      <p class="hint" id="timer-summary"></p>
+      <label>막혔던 이유 (없으면 비워 두기)<textarea name="blocker" rows="2" maxlength="1000"></textarea></label>
+      <p class="form-error" role="alert"></p>
+      <div class="row end"><button class="btn-line danger-text" type="button" id="btn-timer-discard">기록 없이 버리기</button><button class="btn-line" type="button" data-close>계속 재기</button><button class="btn-primary" type="submit">실행 기록으로 저장</button></div>
+    </form>
+  </dialog>
+
+  <div id="timer-pill" class="timer-pill" role="status" aria-live="off" hidden>
+    <img class="pill-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false">
+    <a href="#" id="timer-task" class="timer-task"></a>
+    <b id="timer-clock" class="timer-clock">00:00</b>
+    <button type="button" class="btn-primary small" id="btn-timer-stop">정지</button>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="burst-layer" class="burst-layer" aria-hidden="true"></div>
+  <template id="tpl-icons"><svg data-icon="cal" class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10 H20 M9 3 V7 M15 3 V7"/></svg><svg data-icon="note" class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="3"/><path d="M9 9 H15 M9 13 H15 M9 17 H12"/></svg><svg data-icon="clock" class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5 V12 L15 14"/></svg><svg data-icon="chev" class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 L15 12 L9 18"/></svg><svg data-icon="bulb" class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 H15 M10 20.5 H14 M12 3.5 A6 6 0 0 0 8.5 14.3 V17 H15.5 V14.3 A6 6 0 0 0 12 3.5Z"/></svg><svg data-icon="clover" class="cl" viewBox="-23 -23 46 46" width="18" height="18" aria-hidden="true"><g transform="translate(0 0) scale(1)"><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.70" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.30" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg></template>
+</body>
+</html>
