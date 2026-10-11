@@ -7,6 +7,8 @@
 
 ```
 server.js                   Express 서버 + API (DB 접속 문자열은 환경변수로만)
+api/index.js                Vercel 서버리스 함수 입구 (server.js를 그대로 씀)
+vercel.json                 Vercel 설정 (화면 폴더·서울 지역·보안 헤더)
 db/schema.sql               표·제약·트리거 (서버 시작 때 자동 적용, 여러 번 실행해도 안전)
 contracts/pds-schema-v2.json 표·항목·관계·날짜 규칙·집계 규칙
 public/                     화면 (연두 노트 표지 디자인, 그림은 public/img/)
@@ -16,17 +18,17 @@ render.yaml                 Render 배포 설정
 
 ## 배포 (무료, 결과물·소스 모두 로그인 없이 열림)
 
-1. **DB 만들기 — Supabase 또는 Neon** (둘 다 PostgreSQL이라 코드는 같습니다)
-   - **Supabase**(supabase.com): New project → 데이터베이스 비밀번호를 정해 따로 적어 둡니다 → 위쪽 **Connect** → **Session pooler**의 주소(`postgresql://postgres.xxxx:[YOUR-PASSWORD]@aws-…pooler.supabase.com:5432/postgres`)를 복사하고 `[YOUR-PASSWORD]`를 그 비밀번호로 바꿉니다.
-     Direct connection 주소는 Render에서 접속이 안 될 수 있으니 **Session pooler**를 씁니다. 3번에서 환경변수 `PGSSL=no-verify`도 함께 넣습니다.
-   - **Neon**(neon.tech): 프로젝트를 만들고 Connection string(`…?sslmode=require`)을 복사합니다. `PGSSL`은 넣지 않습니다.
+1. **DB 만들기 — Supabase** (Neon도 가능, 둘 다 PostgreSQL)
+   - Supabase: New project(지역 Seoul) → 데이터베이스 비밀번호를 정해 따로 적어 둡니다 → 위쪽 **Connect** → **Direct** 탭 → 방식 **Session pooler**의 주소(`postgresql://postgres.xxxx:[YOUR-PASSWORD]@aws-…pooler.supabase.com:5432/postgres`)를 복사하고 `[YOUR-PASSWORD]`를 그 비밀번호로 바꿉니다.
+   - Neon을 쓰면 Connection string(`…?sslmode=require`)을 복사하고 `PGSSL`은 넣지 않습니다.
    - 이 주소가 비밀값입니다. 어디에도 붙여 넣지 말고 3번의 환경변수 칸에만 넣습니다.
-2. **소스 올리기 — GitHub 공개 저장소**: 이 폴더를 올립니다. `.env`는 `.gitignore`에 있어 올라가지 않습니다.
-3. **서버 띄우기 — Render** (render.com): New → Web Service → 저장소 선택.
-   Build `npm install`, Start `npm start`, 환경변수 `DATABASE_URL`에 1번 값을 넣습니다(Supabase면 `PGSSL`=`no-verify`도 추가).
-4. 배포 주소(`https://….onrender.com`)를 새 시크릿 창에서 엽니다. 표는 첫 실행 때 자동으로 생깁니다.
+2. **소스 올리기 — GitHub 공개 저장소**: 이 폴더 안의 파일을 올립니다(`.env`는 `.gitignore`에 있어 올라가지 않습니다).
+3. **사이트 띄우기 — Vercel**: Add New → Project → GitHub 저장소 Import → Framework Preset **Other** → Environment Variables에
+   `DATABASE_URL`(1번 값)과 `PGSSL`=`no-verify`(Supabase일 때)를 넣고 Deploy.
+   `vercel.json`이 화면 파일(`public/`)과 서버 함수(`api/index.js`), 서울 지역(icn1), 보안 헤더를 알아서 설정합니다.
+4. 배포 주소(`https://….vercel.app`)를 새 시크릿 창에서 엽니다. 표는 첫 요청 때 자동으로 생깁니다.
 
-> Render 무료 서버는 15분 동안 아무도 안 쓰면 잠듭니다. 잠든 뒤 첫 접속은 1분쯤 걸립니다. 데이터는 Supabase(또는 Neon)에 있어 사라지지 않습니다.
+> Render처럼 서버를 계속 켜 두는 곳에 올려도 됩니다(`render.yaml`, Start `npm start`). 이때도 환경변수는 같습니다.
 
 내 컴퓨터에서 돌리려면: `cp .env.example .env` → 값 채우기 → `npm install` → `npm run dev` → http://localhost:3000
 

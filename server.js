@@ -9,8 +9,11 @@ const { Pool } = require('pg');
 
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL 환경변수가 없습니다. .env.example을 참고하세요.');
-  process.exit(1);
+  if (require.main === module) process.exit(1);
+  throw new Error('DATABASE_URL 환경변수가 없습니다.');
 }
+// Vercel(서버리스)에서는 요청마다 짧게 켜졌다 꺼지므로 연결을 적게 쓴다.
+const SERVERLESS = Boolean(process.env.VERCEL);
 
 // PGSSL: 비우면 암호화+인증서 검증(Neon 등), no-verify면 암호화는 하되 인증서 검증 생략(Supabase 풀러), disable이면 암호화 없음(내 컴퓨터).
 const SSL_MODE = process.env.PGSSL || 'verify';
@@ -19,13 +22,35 @@ const DB_URL = process.env.DATABASE_URL.replace(/([?&])sslmode=[^&]*&?/, '$1').r
 const pool = new Pool({
   connectionString: DB_URL,
   ssl: SSL_MODE === 'disable' ? false : { rejectUnauthorized: SSL_MODE !== 'no-verify' },
-  max: 5,
+  max: SERVERLESS ? 1 : 5,
+  idleTimeoutMillis: SERVERLESS ? 5000 : 10000,
 });
+
+// 표 만들기(schema.sql)는 처음 한 번만. 여러 서버가 동시에 켜져도 겹치지 않게 잠금을 건다.
+const SCHEMA_SQL = fs.readFileSync(path.join(__dirname, 'db', 'schema.sql'), 'utf8');
+let schemaReady = null;
+function ensureSchema() {
+  if (!schemaReady) {
+    schemaReady = (async () => {
+      const c = await pool.connect();
+      try {
+        await c.query('SELECT pg_advisory_lock(606060)');
+        await c.query(SCHEMA_SQL);
+      } finally {
+        await c.query('SELECT pg_advisory_unlock(606060)').catch(() => {});
+        c.release();
+      }
+    })().catch((e) => { schemaReady = null; throw e; });
+  }
+  return schemaReady;
+}
 
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '32kb' }));
+// API를 처리하기 전에 표가 준비되어 있는지 확인한다.
+app.use(['/api', '/healthz'], (req, res, next) => { ensureSchema().then(() => next(), next); });
 
 // 보안 헤더: 인라인 스크립트 금지, 스크립트는 같은 출처에서만.
 app.use((req, res, next) => {
@@ -533,11 +558,15 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(500).json({ error: '서버에서 처리하지 못했습니다. 잠시 뒤 다시 시도하세요.' });
 });
 
-const port = Number(process.env.PORT) || 3000;
-(async () => {
-  await pool.query(fs.readFileSync(path.join(__dirname, 'db', 'schema.sql'), 'utf8'));
-  app.listen(port, () => console.log(`플랜두씨 다이어리: http://localhost:${port}`));
-})().catch((e) => {
-  console.error('시작 실패:', e.code || '', e.message);
-  process.exit(1);
-});
+// 내 컴퓨터·Render처럼 직접 실행할 때는 서버를 켜고, Vercel에서는 api/index.js가 app을 가져다 쓴다.
+if (require.main === module) {
+  const port = Number(process.env.PORT) || 3000;
+  ensureSchema()
+    .then(() => app.listen(port, () => console.log(`플랜두씨 다이어리: http://localhost:${port}`)))
+    .catch((e) => {
+      console.error('시작 실패:', e.code || '', e.message);
+      process.exit(1);
+    });
+}
+
+module.exports = app;
