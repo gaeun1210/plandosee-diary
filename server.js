@@ -387,6 +387,25 @@ app.get('/api/plans/:id/logs', wrap(async (req, res) => {
   res.json(rows);
 }));
 
+// 홈 '나의 하루': 모든 계획을 합쳐 오늘 할 일·다가오는 할 일·최근 7일 실행 기록 (서울 날짜 기준)
+app.get('/api/home', wrap(async (req, res) => {
+  const today = `to_char(${TODAY_SQL}, 'YYYY-MM-DD')`;
+  const base = `SELECT x.*, p.title AS plan_title FROM (${TASK_SELECT}) x JOIN plans p ON p.id = x.plan_id`;
+  const { rows: todayRows } = await pool.query(`${base}
+    WHERE x.due_date = ${today} OR x.delayed
+       OR (x.done AND (x.completed_at AT TIME ZONE 'Asia/Seoul')::date = ${TODAY_SQL})
+    ORDER BY x.done ASC, x.delayed DESC, x.priority ASC, x.due_date ASC, x.id ASC`);
+  const { rows: upcoming } = await pool.query(`${base}
+    WHERE NOT x.done AND x.due_date > ${today}
+    ORDER BY x.due_date ASC, x.priority ASC, x.id ASC LIMIT 8`);
+  const { rows: weekLogs } = await pool.query(`
+    SELECT w.id, w.task_id, w.started_at, w.actual_minutes, t.plan_id, p.title AS plan_title
+    FROM work_logs w JOIN tasks t ON t.id = w.task_id JOIN plans p ON p.id = t.plan_id
+    WHERE t.deleted_at IS NULL AND (w.started_at AT TIME ZONE 'Asia/Seoul')::date > ${TODAY_SQL} - 7
+    ORDER BY w.started_at, w.id`);
+  res.json({ today: todayRows, upcoming, week_logs: weekLogs });
+}));
+
 app.delete('/api/logs/:id', wrap(async (req, res) => {
   const { rowCount } = await pool.query('DELETE FROM work_logs WHERE id=$1', [id(req.params.id)]);
   if (!rowCount) return res.status(404).json({ error: '그 실행 기록을 찾을 수 없습니다.' });

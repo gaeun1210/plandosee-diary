@@ -76,7 +76,7 @@
                 <div class="hbar" role="progressbar" aria-label="할 일 진행률" aria-valuemin="0" aria-valuemax="100" id="hero-bar-wrap"><i id="hero-bar"><span class="knob"><img class="knob-face" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"></span></i></div>
               </div>
               <div class="trail" id="trail" aria-labelledby="trail-title">
-                <div class="trail-head"><h2 id="trail-title">오늘의 산책길</h2><span class="muted" id="trail-count"></span><span class="trail-tag" aria-hidden="true">오늘도 한 걸음</span></div>
+                <div class="trail-head"><h2 id="trail-title">오늘의 산책길</h2><span class="muted all-tag">모든 계획</span><span class="muted" id="trail-count"></span><span class="trail-tag" aria-hidden="true">오늘도 한 걸음</span></div>
                 <div class="track" id="track">
                   <span class="path" aria-hidden="true"></span>
                   <ol class="stops" id="trail-stops" aria-label="오늘 할 일 발자국"></ol>
@@ -90,7 +90,7 @@
             <div class="dgrid">
               <section class="card c-today memo" aria-labelledby="t-today">
                 <div class="memo-top" aria-hidden="true"><img class="memo-band" src="/img/clover-band.svg" alt="" aria-hidden="true" draggable="false"></div>
-                <div class="ch"><h2 id="t-today">오늘 할 일</h2><span class="muted" id="today-count"></span><button type="button" class="mini add-mini" id="btn-add-task-home">＋ 붙이기</button></div>
+                <div class="ch"><h2 id="t-today">오늘 할 일</h2><span class="muted" id="today-count"></span><span class="muted all-tag">모든 계획</span><button type="button" class="mini add-mini" id="btn-add-task-home">＋ 붙이기</button></div>
                 <ul id="today-list" class="tl"></ul>
                 
               </section>
@@ -106,7 +106,7 @@
                 <div id="week-bars" class="wbars"></div>
               </section>
               <section class="card c-glance" aria-labelledby="t-glance">
-                <div class="ch"><h2 id="t-glance">돌아보기 요약</h2><button type="button" class="more" data-go="review">자세히 ›</button></div>
+                <div class="ch"><h2 id="t-glance">돌아보기 요약</h2><span class="muted current-plan-title gl-plan"></span><button type="button" class="more" data-go="review">자세히 ›</button></div>
                 <div class="rv glance" id="glance"></div>
               </section>
             </div>

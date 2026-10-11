@@ -173,7 +173,10 @@ async function loadPlans(selectId) {
   state.plans = await api('/api/plans');
   const saved = Number(new URLSearchParams(location.search).get('plan'));
   const want = selectId || state.planId || saved;
-  state.planId = state.plans.some((p) => p.id === want) ? want : (state.plans.at(-1)?.id ?? null);
+  // 처음 열 때는 오늘이 기간 안에 있는 계획(여러 개면 가장 최근 것)을, 없으면 가장 최근 계획을 연다
+  const td = seoulToday();
+  const active = [...state.plans].reverse().find((p) => p.start_date <= td && td <= p.end_date);
+  state.planId = state.plans.some((p) => p.id === want) ? want : ((active || state.plans.at(-1))?.id ?? null);
   renderPlanNav();
   document.body.classList.toggle('no-plan', !state.planId);
   if (state.planId) {
@@ -1275,4 +1278,84 @@ async function renderAllPlans() {
   const orig = refreshAll;
   // eslint-disable-next-line no-func-assign
   refreshAll = async (...a) => { const r = await orig(...a); renderAllPlans(); return r; };
+})();
+
+// ---------- 홈 '나의 하루': 모든 계획을 합쳐 오늘 할 일·산책길·이번 주 시간 ----------
+// 계획 이름표·돌아보기 요약은 고른 계획 기준, 오늘 할 일과 이번 주 시간은 모든 계획 기준.
+state.home = { today: [], upcoming: [], week_logs: [] };
+let homeTimer = null;
+let homeSeq = 0;
+function scheduleHome() {
+  clearTimeout(homeTimer);
+  homeTimer = setTimeout(async () => {
+    const seq = ++homeSeq;
+    try {
+      const h = await api('/api/home');
+      if (seq !== homeSeq) return;
+      state.home = h;
+    } catch { /* 불러오지 못하면 이전 값을 그대로 둔다 */ }
+    drawHomeDay();
+    drawWeekAll();
+  }, 40);
+}
+const relDue = (d) => {
+  const n = daysBetween(seoulToday(), d);
+  return n === 1 ? '내일' : n === 2 ? '모레' : `${n}일 뒤 · ${fmtShort(d).replace(/ \(.\)$/, '')}`;
+};
+const planTag = (t) => el('i', { class: 'ptag', text: t.plan_title, title: `계획 #${t.plan_id} ${t.plan_title}` });
+function drawHomeDay() {
+  const multi = state.plans.length > 1;
+  const list = state.home.today;
+  renderTrail(list);
+  const doneN = list.filter((t) => t.done).length;
+  $('#today-count').textContent = list.length ? `${list.length}개 중 ${doneN}개 완료` : '';
+  $('#today-list').replaceChildren(...(list.length ? list.map((t) => el('li', { class: t.done ? 'done' : null },
+    el('button', {
+      type: 'button', class: `check${t.done ? ' on' : ''}`, text: t.done ? '✓' : '',
+      'aria-label': t.done ? `#${t.id} 진행 중으로 되돌리기` : `#${t.id} 완료로 바꾸기`,
+      onclick: (e) => (t.done ? reopen(t) : complete(t, e.currentTarget)),
+    }),
+    el('span', { class: 'tt' }, el('span', { class: 'tt-t', text: t.title, title: t.title }), multi ? planTag(t) : null),
+    t.delayed ? el('i', { class: 'bd late', text: '지연' }) : (t.tags[0] ? tagEl(t.tags[0]) : null),
+    el('em', { text: fmtDur(t.estimated_minutes) })))
+    : [el('li', { class: 'empty', text: '오늘 마감인 할 일이 없어요. 여유 있게 다음 할 일을 살펴봐요.' })]));
+  const upcoming = state.home.upcoming.slice(0, Math.max(2, 7 - list.length));
+  if (upcoming.length) {
+    $('#today-list').append(el('li', { class: 'tl-sub', text: '다가오는 할 일' }),
+      ...upcoming.map((t) => el('li', { class: 'up' },
+        el('button', { type: 'button', class: 'check', 'aria-label': `#${t.id} 완료로 바꾸기`, onclick: (e) => complete(t, e.currentTarget) }),
+        el('span', { class: 'tt' }, el('span', { class: 'tt-t', text: t.title, title: t.title }), multi ? planTag(t) : null),
+        t.tags[0] ? tagEl(t.tags[0]) : null,
+        el('em', { class: 'due-rel', text: relDue(t.due_date), title: fmtShort(t.due_date) }))));
+  }
+}
+function drawWeekAll() {
+  const today = seoulToday();
+  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  const mins = Object.fromEntries(days.map((d) => [d, 0]));
+  const byPlan = Object.fromEntries(days.map((d) => [d, new Map()]));
+  for (const l of state.home.week_logs) {
+    const d = seoulDay(l.started_at);
+    if (!(d in mins)) continue;
+    mins[d] += l.actual_minutes;
+    byPlan[d].set(l.plan_title, (byPlan[d].get(l.plan_title) || 0) + l.actual_minutes);
+  }
+  const max = Math.max(60, ...Object.values(mins));
+  const total = Object.values(mins).reduce((a, b) => a + b, 0);
+  $('#week-total').textContent = `모든 계획 합계 ${fmtDur(total)}`;
+  $('#week-bars').replaceChildren(...days.map((d) => {
+    const parts = [...byPlan[d]].map(([n, m]) => `${n} ${fmtDur(m)}`).join(', ');
+    return el('div', {
+      class: `wb${d === today ? ' today' : ''}`, title: `${fmtDate(d)} · ${fmtDur(mins[d])}${parts ? ` (${parts})` : ''}`,
+      role: 'img', 'aria-label': `${dowOf(d)}요일 ${fmtDur(mins[d])}`,
+    }, el('b', { class: 'wv', text: mins[d] ? fmtDur(mins[d]).replace('시간', 'h').replace('분', 'm').replace(' ', '') : '' }),
+    el('i', { style: `--h:${(mins[d] / max).toFixed(3)}` }), el('span', { text: dowOf(d) }));
+  }));
+}
+// 기존 계획별 그리기를 '나의 하루' 그리기로 바꾼다 (계획 이름표·진행 숫자는 그대로 계산)
+(() => {
+  // eslint-disable-next-line no-func-assign
+  renderHomeTasks = () => scheduleHome();
+  // eslint-disable-next-line no-func-assign
+  renderWeek = () => scheduleHome();
 })();

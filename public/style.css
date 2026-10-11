@@ -1288,3 +1288,18 @@ label { position: relative; }
 .c-week .wbars { height: 170px; min-height: 0; flex: none; margin-top: auto; align-items: flex-end; }
 .c-week .wb { height: 170px; justify-content: flex-end; }
 .c-week .wb i { height: max(4px, calc(140px * var(--h, 0))); }
+
+/* ===== 15차: 홈 '나의 하루' ===== */
+.all-tag { font-size: 11px; font-weight: 700; color: #6f8d56; background: #eef3e2; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.trail-head .all-tag { margin-left: 2px; }
+.c-today .ch .all-tag { margin-right: auto; margin-left: -2px; }
+.c-today .ch .muted#today-count { margin-right: 0; }
+.tl li .tt { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.tl li .tt-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ptag { flex: none; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; font-size: 10.5px; color: #6a6a58; background: #f1efe4; border: 1px solid #e3e0cf; border-radius: 5px; padding: 0 6px; }
+.tl li.done .ptag { opacity: .6; }
+.gl-plan { margin-right: auto; margin-left: 4px; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-week .wb { position: relative; }
+.c-week .wv { font-size: 10.5px; font-weight: 700; color: #5f7d47; white-space: nowrap; min-height: 14px; }
+.c-week .wb { gap: 4px; }
+.tl li em.due-rel { font-weight: 700; color: #6f8d56; }
