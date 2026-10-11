@@ -160,6 +160,7 @@ function showFortune(next = false) {
   f.prepend('"'); f.append('"');
   if (next) {
     const card = $('.c-fortune');
+    card.classList.add('opened');
     card.classList.remove('cracked'); void card.offsetWidth; card.classList.add('cracked');
     f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
   }
@@ -564,7 +565,7 @@ async function fillDetail(t, box) {
     el('p', { class: 'facts' },
       el('span', {}, '우선순위 ', el('b', { text: PRIORITY[t.priority] })),
       el('span', {}, '마감 ', el('b', { text: fmtDate(t.due_date) })),
-      el('span', {}, '예상 ', el('b', { text: `${t.estimated_minutes}분` })),
+      el('span', {}, '예상 ', el('b', { text: fmtDur(t.estimated_minutes) })),
       el('span', {}, '실제 ', el('b', { text: `${t.actual_minutes}분` }), ` · 기록 ${t.log_count}건`),
       t.done ? el('span', {}, '완료 ', el('b', { text: fmtTime(t.completed_at) })) : null,
       t.tags.length ? el('span', {}, '태그 ', ...t.tags.map(tagEl)) : null),
@@ -707,7 +708,7 @@ function renderBoard() {
 function boardCard(t) {
   const card = el('article', { class: ['bcard', t.done && 'done', state.justDone === t.id && 'pop'].filter(Boolean).join(' '), draggable: 'true', id: `card-${t.id}` },
     el('p', { class: 'card-title' }, t.title, el('small', { class: 'muted', text: ` #${t.id}` })),
-    el('div', { class: 'bsub' }, fmtShort(t.due_date), ...t.tags.slice(0, 2).map(tagEl), `${t.actual_minutes}/${t.estimated_minutes}분`, t.blocked ? el('i', { class: 'bd block', text: '막힘' }) : null),
+    el('div', { class: 'bsub' }, fmtShort(t.due_date), ...t.tags.slice(0, 2).map(tagEl), `${fmtDur(t.actual_minutes)} / ${fmtDur(t.estimated_minutes)}`, t.blocked ? el('i', { class: 'bd block', text: '막힘' }) : null),
     el('div', { class: 'card-actions' },
       el('button', { type: 'button', class: 'mini', text: t.done ? '되돌리기' : '완료', onclick: (e) => (t.done ? reopen(t) : complete(t, e.currentTarget)) }),
       timerButton(t),
@@ -941,7 +942,7 @@ const METRICS = {
   diff: { label: '차이 (실제−예상)', rule: '할 일마다 실제 시간 − 예상 시간, 그리고 그 합', unit: '분' },
 };
 const RAW_KEY = { planned: 'planned', done: 'done', delayed: 'delayed', blocked: 'blocked', estimated: 'estimated_minutes', actual: 'actual_minutes', diff: 'diff_minutes' };
-const fmtMetric = (k, n) => `${k === 'diff' && n > 0 ? '+' : ''}${n}${METRICS[k].unit}`;
+const fmtMetric = (k, n) => (METRICS[k].unit === '분' ? `${k === 'diff' && n > 0 ? '+' : ''}${fmtDur(n)}` : `${n}${METRICS[k].unit}`);
 
 function periodQs() {
   const qs = new URLSearchParams();
@@ -958,7 +959,7 @@ async function loadReview() {
   $('#review-range').textContent = r.from || r.to
     ? `${(r.from || '처음').replaceAll('-', '.')} ~ ${(r.to || '끝').replaceAll('-', '.')} · 마감일 기준 · 서울 시간`
     : `${p.start_date.replaceAll('-', '.')} ~ ${p.end_date.replaceAll('-', '.')} · 전체 기간 · 서울 시간`;
-  $('#review-basis').textContent = `서울 기준 오늘 ${r.today_seoul} · 시간 단위: 분`;
+  $('#review-basis').textContent = `서울 기준 오늘 ${r.today_seoul} · 시간은 분 단위로 저장하고 ○시간 ○분으로 보여 줘요`;
   const samePlan = state.prevStats.planId === state.planId;
   const raw = Object.fromEntries(Object.entries(RAW_KEY).map(([k, f]) => [k, r[f]]));
   $('#stats').replaceChildren(...Object.keys(METRICS).map((k) => {
@@ -1043,9 +1044,9 @@ async function showEvidence(metric, focus = true) {
   const items = ev.tasks.map((t) => {
     const logs = logsByTask[t.id] || [];
     const showLogs = ['actual', 'blocked', 'diff'].includes(metric) ? logs.filter((l) => metric !== 'blocked' || l.blocker.trim()) : [];
-    const extra = metric === 'diff' ? `예상 ${t.estimated_minutes}분 / 실제 ${t.actual_minutes}분 / 차이 ${t.actual_minutes - t.estimated_minutes}분`
-      : metric === 'estimated' ? `예상 ${t.estimated_minutes}분`
-        : metric === 'actual' ? `실제 ${t.actual_minutes}분`
+    const extra = metric === 'diff' ? `예상 ${fmtDur(t.estimated_minutes)} / 실제 ${fmtDur(t.actual_minutes)} / 차이 ${fmtDur(t.actual_minutes - t.estimated_minutes)}`
+      : metric === 'estimated' ? `예상 ${fmtDur(t.estimated_minutes)}`
+        : metric === 'actual' ? `실제 ${fmtDur(t.actual_minutes)}`
           : `마감 ${t.due_date}${t.done ? ' · 완료' : ''}`;
     return el('li', {},
       el('a', { href: `#task-${t.id}`, onclick: (e) => { e.preventDefault(); jumpToTask(t.id); } }, `할 일 #${t.id} ${t.title}`),
@@ -1054,9 +1055,9 @@ async function showEvidence(metric, focus = true) {
   });
   if (!items.length) items.push(el('li', { class: 'hint', text: '이 숫자에 해당하는 기록이 없습니다.' }));
   const sums = { e: ev.tasks.reduce((a, t) => a + t.estimated_minutes, 0), a: ev.tasks.reduce((a, t) => a + t.actual_minutes, 0) };
-  if (metric === 'estimated') items.push(el('li', { class: 'sum', text: `합계 ${sums.e}분` }));
-  if (metric === 'actual') items.push(el('li', { class: 'sum', text: `합계 ${sums.a}분 (기록 ${ev.logs.length}건)` }));
-  if (metric === 'diff') items.push(el('li', { class: 'sum', text: `실제 ${sums.a}분 − 예상 ${sums.e}분 = ${sums.a - sums.e}분` }));
+  if (metric === 'estimated') items.push(el('li', { class: 'sum', text: `합계 ${fmtDur(sums.e)} (${sums.e}분)` }));
+  if (metric === 'actual') items.push(el('li', { class: 'sum', text: `합계 ${fmtDur(sums.a)} (${sums.a}분, 기록 ${ev.logs.length}건)` }));
+  if (metric === 'diff') items.push(el('li', { class: 'sum', text: `실제 ${fmtDur(sums.a)} − 예상 ${fmtDur(sums.e)} = ${fmtDur(sums.a - sums.e)} (${sums.a - sums.e}분)` }));
   $('#evidence-list').replaceChildren(...items);
   const box = $('#evidence');
   if (focus) {
@@ -1170,7 +1171,7 @@ async function refreshAll() {
   const today = seoulToday();
   $('#today-label').textContent = `${fmtDate(today)} ${dowOf(today)}요일`;
   $('#task-form').due_date.value = today;
-  showFortune(false);
+  // 행운 쪽지는 쿠키를 누르기 전에는 보여 주지 않는다
   showScreen(location.hash.slice(1), { push: false });
   try {
     await loadPlans();
@@ -1200,4 +1201,48 @@ async function refreshAll() {
     else { audio.pause(); setPlaying(false); }
   });
   $('#music-vol').addEventListener('input', (e) => { audio.volume = Number(e.target.value) / 100; });
+})();
+
+// ---------- 시간 입력: 분 대신 "○시간 ○분"으로 적기 (저장은 그대로 분) ----------
+(() => {
+  const NAMES = ['estimated_minutes', 'actual_minutes'];
+  const widgets = [];
+  $$('form input[type="number"]').filter((i) => NAMES.includes(i.name)).forEach((inp) => {
+    const label = inp.closest('label');
+    const h = el('input', { type: 'number', min: '0', max: '1666', step: '1', inputmode: 'numeric', 'aria-label': '시간', class: 'dur-h' });
+    const m = el('input', { type: 'number', min: '0', max: '59', step: '1', inputmode: 'numeric', 'aria-label': '분', class: 'dur-m' });
+    const box = el('span', { class: 'dur' }, h, el('span', { class: 'dur-u', text: '시간' }), m, el('span', { class: 'dur-u', text: '분' }));
+    inp.classList.add('dur-src');
+    inp.tabIndex = -1;
+    inp.setAttribute('aria-hidden', 'true');
+    inp.after(box);
+    // 라벨의 "(분)" 글자는 지운다
+    for (const n of label.childNodes) if (n.nodeType === 3) n.textContent = n.textContent.replace('(분)', '');
+    const fromSrc = () => {
+      const v = inp.value === '' ? null : Number(inp.value);
+      const cur = (h.value === '' && m.value === '') ? null : (Number(h.value || 0) * 60 + Number(m.value || 0));
+      if (v === cur) return;
+      if (v === null) { h.value = ''; m.value = ''; return; }
+      h.value = String(Math.floor(v / 60)); m.value = String(v % 60);
+    };
+    const toSrc = () => {
+      if (h.value === '' && m.value === '') inp.value = '';
+      else {
+        let mm = Number(m.value || 0);
+        let hh = Number(h.value || 0);
+        if (mm >= 60) { hh += Math.floor(mm / 60); mm %= 60; h.value = String(hh); m.value = String(mm); }
+        inp.value = String(Math.max(0, hh * 60 + mm));
+      }
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    h.addEventListener('input', (e) => { e.stopPropagation(); toSrc(); });
+    m.addEventListener('input', (e) => { e.stopPropagation(); toSrc(); });
+    // 시작·끝 시각을 바꾸면 분이 자동으로 계산되므로 그때마다 화면 칸도 맞춘다
+    inp.form.addEventListener('input', () => setTimeout(fromSrc, 0));
+    inp.form.addEventListener('change', () => setTimeout(fromSrc, 0));
+    widgets.push(fromSrc);
+  });
+  const orig = openDialog;
+  // eslint-disable-next-line no-func-assign
+  openDialog = (d) => { orig(d); widgets.forEach((f) => f()); };
 })();

@@ -28,7 +28,7 @@
   <div class="book">
     <!-- 노트 책등: 내 계획 -->
     <aside class="side" aria-label="내 계획">
-      <div class="brand"><img class="brand-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"><div class="brand-txt"><b>플랜두씨</b><small>행운 다이어리</small></div></div>
+      <div class="brand"><img class="brand-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"><div class="brand-txt"><b><span class="hl">플랜두씨</span> 다이어리</b></div></div>
       <nav class="snav tabs" aria-label="화면 바꾸기"><div class="tabs-in"><button type="button" class="nav-btn tab" data-go="home"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">홈</span></button><button type="button" class="nav-btn tab" data-go="plan"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">계획</span></button><button type="button" class="nav-btn tab" data-go="tasks"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">할 일</span></button><button type="button" class="nav-btn tab" data-go="logs"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">기록</span></button><button type="button" class="nav-btn tab" data-go="review"><span class="tab-hole" aria-hidden="true"></span><span class="tab-t">돌아보기</span></button></div></nav>
       <p class="slabel">내 계획</p>
       <ul id="plan-nav" class="plans"></ul>
@@ -95,7 +95,7 @@
                 
               </section>
               <section class="card c-fortune" aria-labelledby="t-fortune">
-                <div class="ch"><h2 id="t-fortune">오늘의 행운 쪽지</h2><span class="muted">쿠키를 눌러 보세요</span></div>
+                <div class="ch"><h2 id="t-fortune">오늘의 행운 쪽지</h2><span class="muted ck-hint">쿠키를 눌러 오늘의 쪽지를 열어 보세요</span></div>
                 <button type="button" class="cookie-btn" id="cookie-hit" aria-label="포춘쿠키 열어서 행운 쪽지 새로 뽑기"><img class="ck-closed" src="/img/cookie-closed.png" alt="" aria-hidden="true" draggable="false"><img class="ck-open" src="/img/cookie-open.png" alt="" aria-hidden="true" draggable="false"></button>
                 <div class="f-main"><p class="fq" id="fortune" aria-live="polite"></p>
                   <button type="button" class="more" id="fortune-again">한 장 더 뽑기</button>
@@ -112,7 +112,7 @@
             </div>
           </div>
           <div class="empty-hero" id="empty-hero">
-            <img class="sleepy" src="/img/turtle-sleep.png" alt="" aria-hidden="true" draggable="false">
+            <svg class="empty-clover" viewBox="-30 -30 60 70" aria-hidden="true"><g transform="translate(0 0) scale(1.2)"><path d="M0 2 C0 14 3 22 9 31" fill="none" stroke="#6e675b" stroke-width="1.50" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(45)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.50" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(45)" stroke="#a7c494" stroke-width="1.08" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(135)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.50" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(135)" stroke="#a7c494" stroke-width="1.08" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(225)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.50" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(225)" stroke="#a7c494" stroke-width="1.08" stroke-linecap="round"/><path d="M0 -1 C-4 -4 -12 -8 -12 -15 C-12 -20 -6 -22 -2.5 -18.5 C-1.2 -17.2 -0.4 -16 0 -15 C0.4 -16 1.2 -17.2 2.5 -18.5 C6 -22 12 -20 12 -15 C12 -8 4 -4 0 -1Z" transform="rotate(315)" fill="#c3dcae" stroke="#6e675b" stroke-width="1.50" stroke-linejoin="round"/><path d="M0 -3 L0 -12" transform="rotate(315)" stroke="#a7c494" stroke-width="1.08" stroke-linecap="round"/><circle r="1.6" fill="#a7c494"/></g></svg>
             <h1>아직 계획이 없어요</h1>
             <p>운동·공부·업무처럼 지금 실제로 하고 있는 일 하나를 계획으로 옮겨 보세요.</p>
             <button type="button" class="btn-primary" id="btn-new-plan-3">＋ 새 계획 세우기</button>
@@ -227,7 +227,6 @@
             </div>
             <section class="card next-card" aria-labelledby="t-next">
               <span class="luck-corner" aria-hidden="true"><img class="luck-tag" src="/img/luck-tag.svg" alt="" aria-hidden="true" draggable="false"></span>
-              <div class="nb-art"><img class="nb-turtle" src="/img/turtle-top.png" alt="" aria-hidden="true" draggable="false"></div>
               <div class="nb-main">
                 <h2 id="t-next">다음 계획으로 넘길 고칠 점 한 가지</h2>
                 <form id="lesson-form" class="lesson">

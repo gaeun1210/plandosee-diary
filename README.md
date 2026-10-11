@@ -85,7 +85,7 @@ grep -rnE "postgres(ql)?://" public/ || echo "배포되는 화면 파일 깨끗"
 - **그림 출처: 모두 AI로 만든 그림입니다.**
   - 거북이(`turtle-top.png`, `turtle-sleep.png`)와 포춘쿠키(`cookie-closed.png`, `cookie-open.png`): 이미지 생성 AI로 만든 그림을 잘라 배경을 지우고 색을 조금 맞췄습니다.
   - 별·Luck 꼬리표·클로버 단추 띠(`public/img/*.svg`)와 네잎클로버·아이콘(화면 안 SVG): AI(Claude)가 코드로 그린 그림입니다.
-- 글꼴은 제목 Jua, 본문 Noto Sans KR.
+- 글꼴은 제목·꾸밈 글씨 Jua, 본문 Noto Sans KR (모두 구글 무료 글꼴). 시간은 DB에 분 단위로 저장하고 화면에서는 ○시간 ○분으로 입력·표시합니다.
 - 홈의 포춘쿠키를 누르면 쿠키가 열려 행운 쪽지가 나오고, 문장이 바뀝니다.
 - 휴대폰에서는 탭이 위쪽 가로 줄로 바뀌고 카드가 한 줄로 쌓입니다. "동작 줄이기"를 켜면 움직임이 꺼집니다.
 

@@ -1174,3 +1174,80 @@ body.theme-b { background: #e5ece8; }
 @media (max-width: 900px) { .music { grid-column: 1 / -1; } .music .mvol { display: block; } }
 .ph h1 { margin-top: 2px; }
 .notice .nh { font-size: 16px; }
+
+/* ===== 11차 ===== */
+/* 손글씨 글꼴(Jua)은 굵기가 하나뿐이라, 브라우저가 억지로 굵게 만들면 뭉개진다 → 막는다 */
+h1, h2, h3, .ph h1, .ch h2, .nb-main h2, .trail-head h2, .nav-btn.tab, .fq, .stat b, .rv b, .dn-t b, .star-badge b, .trail-tag, .topline .date, .sheet h2, .empty-hero h1, .plan-card-head h2, .log-title, .cal-title, .col h3 { font-synthesis: none; }
+.nav-btn.tab, .nav-btn.tab[aria-current="page"], .nb-main h2, .ch h2, .ph h1, .trail-head h2 { font-weight: 400; }
+/* 사이트 이름: 한 줄로 간단하게 */
+.brand-txt b { font-size: 16px; letter-spacing: -.03em; white-space: nowrap; }
+.brand .brand-turtle { width: 40px; }
+.brand { gap: 8px; }
+.brand { padding: 12px; }
+/* 지금 계획 이름표: 글자를 크게, 여백은 줄이기 */
+.name-label { min-height: 0; padding: 26px 150px 26px 34px; }
+.nl-in { min-height: 0; }
+.hero h1 { font-size: clamp(26px, 3.2vw, 40px); line-height: 1.25; margin-top: 6px; }
+.hero .pill { font-size: 12.5px; padding: 1px 10px; }
+/* 행운 쪽지: 열기 전에는 문구 숨김 */
+.c-fortune:not(.opened) .fq, .c-fortune:not(.opened) #fortune-again { display: none; }
+.c-fortune.opened .ck-hint { visibility: hidden; }
+.c-fortune:not(.opened) .cookie-btn .ck-closed { animation: wiggle 2.4s ease-in-out infinite; }
+/* 다음 계획 카드: 거북이 빼고 한 줄로 */
+.next-card { display: block; }
+/* 빈 화면: 선명한 클로버 그림 */
+.empty-clover { width: 96px; height: auto; display: block; margin: 0 auto 6px; overflow: visible; }
+@media (max-width: 900px) { .name-label { padding: 22px 16px 22px 18px; } .hero h1 { font-size: 24px; } }
+
+/* ===== 12차: 글꼴 (고운돋움 = 제목·숫자, 개구 = 꾸밈 글씨) ===== */
+:root { --hand: "Gowun Dodum", "Noto Sans KR", sans-serif; --deco: "Gaegu", "Gowun Dodum", sans-serif; }
+.hero h1 { letter-spacing: -.01em; }
+.brand-txt b, .star-badge b, .fq, .trail-tag, .empty-hero h1, .ck-hint, .music-state { font-family: var(--deco); font-weight: 700; font-synthesis: none; }
+.brand-txt b { font-size: 23px; letter-spacing: -.02em; color: #3f4d36; line-height: 1.1; }
+.brand { padding: 10px 12px; gap: 6px; }
+.brand .brand-turtle { width: 36px; flex: none; }
+.brand-txt { min-width: 0; }
+.star-badge b, .name-label .star-badge b { font-size: 34px; }
+.fq { font-size: 23px; line-height: 1.45; }
+.trail-tag { font-size: 18px; }
+.ck-hint { font-size: 15px; color: var(--muted); }
+.empty-hero h1 { font-size: 34px; }
+.music-state { font-size: 15px; font-weight: 700; }
+/* 빈 화면 클로버 살랑살랑 */
+.empty-clover { transform-origin: 50% 85%; animation: clover-sway 3.2s ease-in-out infinite; }
+@keyframes clover-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg) translateY(-3px); } }
+/* 시간 입력: ○시간 ○분 */
+.dur-src { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0; pointer-events: none; padding: 0 !important; border: 0 !important; }
+label { position: relative; }
+.dur { display: flex; align-items: center; gap: 6px; }
+.dur input { flex: 1 1 0; min-width: 0; width: auto !important; text-align: right; }
+.dur-u { flex: none; font-size: 13.5px; color: var(--ink-2); }
+.music-state { font-family: var(--font); font-size: 12.5px; }
+.brand-txt b { font-size: 21px; letter-spacing: -.06em; }
+.brand .brand-turtle { width: 32px; }
+.stat b { font-size: clamp(17px, 1.65vw, 26px); white-space: nowrap; letter-spacing: -.02em; }
+.stat { padding: 12px 10px 12px 12px; min-width: 0; overflow: hidden; }
+.ck-hint { font-size: 16px; }
+
+/* ===== 13차: 글꼴은 다시 Jua(제목·꾸밈) + Noto Sans KR(본문) ===== */
+:root { --hand: "Jua", "Noto Sans KR", sans-serif; --deco: "Jua", "Noto Sans KR", sans-serif; }
+.brand-txt b, .star-badge b, .fq, .trail-tag, .empty-hero h1 { font-family: var(--hand); font-weight: 400; font-synthesis: none; }
+.ck-hint, .music-state { font-family: var(--font); font-weight: 400; }
+.ck-hint { font-size: 12.5px; color: var(--muted); }
+.music-state { font-weight: 700; font-size: 12.5px; }
+.fq { font-size: 19px; line-height: 1.55; }
+.trail-tag { font-size: 16px; }
+.empty-hero h1 { font-size: 28px; }
+.star-badge b, .name-label .star-badge b { font-size: 30px; }
+/* 사이트명: 한 줄, '플랜두씨'에만 형광펜 */
+.brand { padding: 12px 10px 14px 12px; gap: 7px; align-items: center; }
+.brand .brand-turtle { width: 32px; flex: none; }
+.brand-txt b { font-size: 23px; letter-spacing: -.03em; line-height: 1.2; color: #3f4d36; white-space: nowrap; }
+.brand-txt .hl { background: linear-gradient(transparent 55%, #d3e6b6 55%, #d3e6b6 92%, transparent 92%); padding: 0 2px; }
+@media (max-width: 900px) { .brand-txt b { font-size: 21px; } }
+/* 사이트명이 칸을 넘지 않게: 이름표 너비에 맞춰 글자 크기를 자동으로 줄인다 */
+.brand { container-type: inline-size; padding: 12px 12px 14px 10px; gap: 6px; }
+.brand .brand-turtle { width: 30px; }
+.brand-txt { flex: 1 1 auto; min-width: 0; }
+.brand-txt b { display: block; font-size: min(21px, calc((100cqi - 36px) / 7.1)); letter-spacing: -.04em; overflow: hidden; text-overflow: clip; }
+@media (max-width: 900px) { .brand { container-type: normal; } .brand-txt b { font-size: 20px; overflow: visible; } }
