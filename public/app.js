@@ -29,6 +29,13 @@ function el(tag, props = {}, ...children) {
     if (k === 'class') n.className = v;
     else if (k === 'text') n.textContent = v;
     else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (k === 'style') {
+      // CSP(style-src)가 style 속성을 막으므로 CSSOM으로 하나씩 넣는다
+      for (const decl of String(v).split(';')) {
+        const i = decl.indexOf(':');
+        if (i > 0) n.style.setProperty(decl.slice(0, i).trim(), decl.slice(i + 1).trim());
+      }
+    }
     else n.setAttribute(k, v === true ? '' : v);
   }
   for (const c of children.flat()) {

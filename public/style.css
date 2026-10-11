@@ -1303,3 +1303,24 @@ label { position: relative; }
 .c-week .wv { font-size: 10.5px; font-weight: 700; color: #5f7d47; white-space: nowrap; min-height: 14px; }
 .c-week .wb { gap: 4px; }
 .tl li em.due-rel { font-weight: 700; color: #6f8d56; }
+
+/* ── 16차: 좁은 화면에서 홈 카드가 종이 밖으로 넘치지 않게, 요약 글자 키우기, 쿠키 조금 작게 ── */
+.dgrid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); }
+.dgrid > .card { min-width: 0; }
+#screen-home { container-type: inline-size; container-name: home; }
+@container home (max-width: 900px) {
+  .dgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .dgrid .c-today, .dgrid .c-glance { grid-column: 1 / -1; grid-row: auto; }
+}
+@container home (max-width: 560px) {
+  .dgrid { grid-template-columns: minmax(0, 1fr); }
+}
+.cookie-btn { width: 110px; max-width: 70%; }
+.cookie-btn img { width: 100%; height: auto; }
+.c-glance { container-type: inline-size; container-name: glance; }
+@container glance (max-width: 600px) {
+  .rv.glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.rv.glance .gl span { font-size: 14px; }
+.rv.glance .gl small { font-size: 12.5px; line-height: 1.45; }
+.rv.glance .gl b { font-size: min(26px, calc((100cqi - 4px) / 5.2)); }
