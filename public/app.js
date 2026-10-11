@@ -1246,3 +1246,33 @@ async function refreshAll() {
   // eslint-disable-next-line no-func-assign
   openDialog = (d) => { orig(d); widgets.forEach((f) => f()); };
 })();
+
+// ---------- 계획 화면: 모든 계획 한눈에 (지난 계획도 바로 열기) ----------
+async function renderAllPlans() {
+  const box = $('#all-plans');
+  if (!box) return;
+  let sums = [];
+  try { sums = await api('/api/plans-summary'); } catch { /* 요약을 못 불러와도 목록은 보여 준다 */ }
+  const byId = new Map(sums.map((s) => [s.id, s]));
+  $('#count-plans').textContent = state.plans.length ? String(state.plans.length) : '';
+  box.replaceChildren(...[...state.plans].reverse().map((p) => {
+    const s = byId.get(p.id) || { planned: 0, done: 0, estimated_minutes: 0, actual_minutes: 0, log_count: 0 };
+    const on = p.id === state.planId;
+    const pct = s.planned ? Math.round((s.done / s.planned) * 100) : 0;
+    return el('li', {}, el('button', {
+      type: 'button', class: `ap-row${on ? ' on' : ''}`, 'aria-current': on ? 'true' : null,
+      'aria-label': `계획 #${p.id} ${p.title} 열기`,
+      onclick: async () => { await selectPlan(p.id); showScreen('home'); },
+    },
+    el('span', { class: 'ap-title' }, svgIcon('clover'), el('b', { text: p.title }), el('small', { text: `#${p.id}${on ? ' · 지금 보는 계획' : ''}` })),
+    el('span', { class: 'ap-date', text: `${p.start_date.slice(5).replace('-', '.')} ~ ${p.end_date.slice(5).replace('-', '.')}` }),
+    el('span', { class: 'ap-prog' }, el('i', { class: 'ap-bar' }, el('i', { style: `width:${pct}%` })), `${s.done}/${s.planned} 완료`),
+    el('span', { class: 'ap-time', text: `${fmtDur(s.estimated_minutes)} → ${s.log_count ? fmtDur(s.actual_minutes) : '기록 없음'}` }),
+    el('span', { class: 'ap-lesson', text: p.carried_lesson ? `🍀 ${p.carried_lesson}` : '–', title: p.carried_lesson || '' })));
+  }));
+}
+(() => {
+  const orig = refreshAll;
+  // eslint-disable-next-line no-func-assign
+  refreshAll = async (...a) => { const r = await orig(...a); renderAllPlans(); return r; };
+})();

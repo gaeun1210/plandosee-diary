@@ -1260,3 +1260,31 @@ label { position: relative; }
 /* 숫자는 크게 두고, 칸이 좁으면 "10시간 / 20분"처럼 두 줄로 나눈다 */
 .statrow .stat b { font-size: min(28px, calc(100cqi / 3.7)); white-space: normal; word-break: keep-all; line-height: 1.15; overflow: visible; }
 .statrow .stat { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 2px; }
+
+/* ===== 14차: 모든 계획 목록 + 주간 막대 ===== */
+.all-plans { margin-top: 16px; }
+.ap-head, .ap-row { display: grid; grid-template-columns: minmax(0, 1.8fr) 110px 150px 170px minmax(0, 1.4fr); gap: 12px; align-items: center; }
+.ap-head { font-size: 12.5px; color: var(--muted); padding: 6px 12px; border-bottom: 1.5px solid var(--line); }
+.ap-list { list-style: none; margin: 0; padding: 0; }
+.ap-row { width: 100%; text-align: left; background: transparent; border: 0; border-bottom: 1px dashed #e6e3cf; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--ink); }
+.ap-row:hover { background: var(--green-ss); }
+.ap-row.on { background: #eef3e2; }
+.ap-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ap-title b { font-family: var(--hand); font-weight: 400; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-title small { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.ap-title .cl { flex: none; }
+.ap-date, .ap-time { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.ap-prog { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.ap-bar { display: block; flex: 1; height: 7px; background: #eef1e4; border-radius: 9px; overflow: hidden; min-width: 40px; }
+.ap-bar i { display: block; height: 100%; background: var(--leaf); border-radius: 9px; }
+.ap-lesson { font-size: 13px; color: #6a5a2c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) {
+  .ap-head { display: none; }
+  .ap-row { grid-template-columns: 1fr auto; row-gap: 4px; }
+  .ap-title { grid-column: 1 / -1; }
+  .ap-lesson { grid-column: 1 / -1; }
+}
+/* 주간 막대: 높이를 px로 계산해 어느 브라우저에서도 올라오게 */
+.c-week .wbars { height: 170px; min-height: 0; flex: none; margin-top: auto; align-items: flex-end; }
+.c-week .wb { height: 170px; justify-content: flex-end; }
+.c-week .wb i { height: max(4px, calc(140px * var(--h, 0))); }

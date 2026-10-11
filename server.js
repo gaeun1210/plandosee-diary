@@ -173,6 +173,24 @@ app.get('/api/plans', wrap(async (req, res) => {
   res.json(rows);
 }));
 
+// 모든 계획 한눈에: 계획마다 할 일 수·완료 수·예상·실제 시간 (지운 할 일은 빼고 센다)
+app.get('/api/plans-summary', wrap(async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT p.id,
+      COUNT(t.id)::int AS planned,
+      COUNT(c.id)::int AS done,
+      COALESCE(SUM(t.estimated_minutes), 0)::int AS estimated_minutes,
+      COALESCE(SUM(w.actual_minutes), 0)::int AS actual_minutes,
+      COALESCE(SUM(w.log_count), 0)::int AS log_count
+    FROM plans p
+    LEFT JOIN tasks t ON t.plan_id = p.id AND t.deleted_at IS NULL
+    LEFT JOIN task_completions c ON c.task_id = t.id AND c.reopened_at IS NULL
+    LEFT JOIN (SELECT task_id, SUM(actual_minutes) AS actual_minutes, COUNT(*) AS log_count
+               FROM work_logs GROUP BY task_id) w ON w.task_id = t.id
+    GROUP BY p.id ORDER BY p.id`);
+  res.json(rows);
+}));
+
 app.post('/api/plans', wrap(async (req, res) => {
   const f = planFields(req.body || {});
   const plan = await tx(async (c) => {

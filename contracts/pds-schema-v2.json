@@ -138,6 +138,7 @@
   },
   "api": {
     "GET /api/plans": "계획 목록",
+    "GET /api/plans-summary": "모든 계획 한눈에: 계획마다 할 일 수(지운 것 제외)·완료 수·예상 분 합계·실제 분 합계·기록 수",
     "POST /api/plans": "계획 만들기 (1판 함께 저장)",
     "PUT /api/plans/:id": "계획 고치기 (새 판 추가)",
     "GET /api/plans/:id/revisions": "고친 이력",
