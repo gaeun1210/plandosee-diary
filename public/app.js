@@ -178,12 +178,14 @@ $('#fortune-again').addEventListener('click', () => showFortune(true));
 // ---------- 계획 ----------
 async function loadPlans(selectId) {
   state.plans = await api('/api/plans');
-  const saved = Number(new URLSearchParams(location.search).get('plan'));
+  const saved = new URLSearchParams(location.search).get('plan');
   const want = selectId || state.planId || saved;
+  // 서버는 ID를 글자("1")로, 주소는 숫자로 줄 수 있으므로 글자로 맞춰 비교한다
+  const hit = want != null && state.plans.find((p) => String(p.id) === String(want));
   // 처음 열 때는 오늘이 기간 안에 있는 계획(여러 개면 가장 최근 것)을, 없으면 가장 최근 계획을 연다
   const td = seoulToday();
   const active = [...state.plans].reverse().find((p) => p.start_date <= td && td <= p.end_date);
-  state.planId = state.plans.some((p) => p.id === want) ? want : ((active || state.plans.at(-1))?.id ?? null);
+  state.planId = hit ? hit.id : ((active || state.plans.at(-1))?.id ?? null);
   renderPlanNav();
   document.body.classList.toggle('no-plan', !state.planId);
   if (state.planId) {
