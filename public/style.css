@@ -1251,3 +1251,12 @@ label { position: relative; }
 .brand-txt { flex: 1 1 auto; min-width: 0; }
 .brand-txt b { display: block; font-size: min(21px, calc((100cqi - 36px) / 7.1)); letter-spacing: -.04em; overflow: hidden; text-overflow: clip; }
 @media (max-width: 900px) { .brand { container-type: normal; } .brand-txt b { font-size: 20px; overflow: visible; } }
+/* 돌아보기 숫자: 칸 너비에 맞춰 글자 크기를 자동으로 줄여 칸을 넘지 않게 */
+.statrow .stat { container-type: inline-size; min-width: 0; }
+.statrow .stat b { display: block; font-size: min(30px, calc((100cqi - 4px) / 5.6)); letter-spacing: -.03em; white-space: nowrap; overflow: hidden; }
+.statrow .stat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv.glance .gl { container-type: inline-size; }
+.rv.glance .gl b { font-size: min(24px, calc((100cqi - 4px) / 5.4)); }
+/* 숫자는 크게 두고, 칸이 좁으면 "10시간 / 20분"처럼 두 줄로 나눈다 */
+.statrow .stat b { font-size: min(28px, calc(100cqi / 3.7)); white-space: normal; word-break: keep-all; line-height: 1.15; overflow: visible; }
+.statrow .stat { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 2px; }
